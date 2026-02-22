@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhancement Three: Databases - Jonathan Plummer ePortfolio</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Jonathan Plummer</a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="code-review.html">Code Review</a>
+        <a href="enhancement-one.html">Software Design</a>
+        <a href="enhancement-two.html">Algorithms</a>
+        <a href="enhancement-three.html" class="active">Databases</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Databases</h1>
+    <p class="subtitle">Enhancement Three &mdash; Milestone Four</p>
+  </div>
+
+  <main>
+
+    <section>
+      <h2>Artifact Description</h2>
+      <p>The Weight Tracking App's original database layer used Android's SQLiteOpenHelper to manage two tables &mdash; users and weight_log &mdash; with no referential integrity constraints, no performance indexes, no input validation at the database level, and a destructive migration strategy that dropped all tables on schema upgrades.</p>
+    </section>
+
+    <section>
+      <h2>Justification for Inclusion</h2>
+      <p>The enhancements transform the database layer into a production-quality implementation that showcases the following skills:</p>
+
+      <h3>Foreign Key Constraints and Referential Integrity</h3>
+      <p>I added <code>FOREIGN KEY</code> constraints with <code>ON DELETE CASCADE</code> to both the weight_log and goal_weight tables, referencing the users table. This ensures weight entries and goals cannot exist for nonexistent users, and deleting a user automatically removes all associated data.</p>
+      <pre><code>-- Weight log table with FK constraint
+CREATE TABLE weight_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    date TEXT NOT NULL,
+    weight REAL NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+);
+
+-- Enabled per-connection (not per-schema)
+@Override
+public void onConfigure(SQLiteDatabase db) {
+    super.onConfigure(db);
+    db.setForeignKeyConstraintsEnabled(true);
+}</code></pre>
+
+      <h3>Database Indexes for Query Performance</h3>
+      <p>I created a composite index on <code>weight_log(username, date)</code> that covers both the WHERE clause and ORDER BY clause of the most frequently executed query, eliminating the need for a filesort operation.</p>
+      <pre><code>CREATE INDEX IF NOT EXISTS idx_weight_username_date
+    ON weight_log(username, date);
+
+CREATE INDEX IF NOT EXISTS idx_goal_username
+    ON goal_weight(username);</code></pre>
+
+      <h3>Non-Destructive Schema Migration</h3>
+      <p>The original <code>onUpgrade()</code> dropped all tables and recreated them, destroying all user data. I implemented a v3-to-v4 migration using the "recreate with data" pattern since SQLite does not support <code>ALTER TABLE ADD FOREIGN KEY</code>:</p>
+      <ol>
+        <li>Clean orphaned records that would violate new FK constraints</li>
+        <li>Create new tables with FK constraints and NOT NULL</li>
+        <li>Copy all existing data from old tables to new tables</li>
+        <li>Drop old tables and rename new ones</li>
+        <li>Create performance indexes</li>
+      </ol>
+      <p>The entire migration runs inside the transaction managed by SQLiteOpenHelper, so any failure safely rolls back to the previous version.</p>
+      <pre><code>// Clean orphaned records before migration
+db.execSQL("DELETE FROM weight_log WHERE username " +
+    "NOT IN (SELECT username FROM users)");
+
+// Create new table with constraints
+db.execSQL("CREATE TABLE weight_log_new (...)");
+
+// Copy existing data
+db.execSQL("INSERT INTO weight_log_new (...) SELECT ... FROM weight_log");
+
+// Swap tables
+db.execSQL("DROP TABLE weight_log");
+db.execSQL("ALTER TABLE weight_log_new RENAME TO weight_log");</code></pre>
+
+      <h3>Date Validation at the Database Layer</h3>
+      <p>A static <code>isValidDate()</code> method uses strict <code>SimpleDateFormat</code> parsing to validate dates before they reach the database, catching invalid dates like February 30 or month 13.</p>
+      <pre><code>public static boolean isValidDate(String date) {
+    if (date == null || !date.matches("\\d{4}-\\d{2}-\\d{2}")) {
+        return false;
+    }
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    sdf.setLenient(false);  // Strict parsing
+    sdf.parse(date);
+    return true;
+}</code></pre>
+
+      <h3>CSV Data Export Query</h3>
+      <p>A dedicated <code>getWeightsForExport()</code> method returns results in ascending chronological order, optimized for sequential data export rather than the descending order used for display.</p>
+
+      <h3>Comprehensive Database Tests (33 Tests)</h3>
+      <p>Instrumented tests in <code>DatabaseHelperTest</code> cover user registration and login, weight CRUD operations, goal weight management, date validation, foreign key constraint enforcement, index verification (querying <code>sqlite_master</code>), password salt uniqueness, CSV export queries, and edge cases. Each test runs against a fresh database for complete isolation.</p>
+    </section>
+
+    <section>
+      <h2>Course Outcomes</h2>
+      <p><span class="outcome-tag">Outcome 4</span><span class="outcome-tag">Outcome 5</span></p>
+      <ul>
+        <li><strong>Outcome 4 (Well-Founded Techniques):</strong> Referential integrity through foreign keys, query optimization through composite indexes, safe schema evolution through non-destructive migrations, and comprehensive test coverage are industry-standard database practices.</li>
+        <li><strong>Outcome 5 (Security Mindset):</strong> Date validation prevents malformed data from entering the database. Foreign key constraints maintain data integrity against orphaned records. NOT NULL constraints prevent incomplete records from being stored.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Reflection</h2>
+      <p>The most challenging aspect was implementing the non-destructive migration. SQLite's limited ALTER TABLE support means adding foreign key constraints requires the "recreate with data" pattern. I had to think carefully about the order of operations &mdash; migrating child tables before the parent table to avoid FK violations during the copy process, and cleaning orphaned records before any migration steps.</p>
+      <p>I also learned about the distinction between schema-level and connection-level settings in SQLite. Foreign key enforcement must be enabled per connection via <code>setForeignKeyConstraintsEnabled()</code>. The correct place is <code>onConfigure()</code>, not <code>onCreate()</code>, because <code>onCreate()</code> only runs once when the database is first created, while <code>onConfigure()</code> runs every time a connection is opened.</p>
+      <p>Writing instrumented tests taught me how to properly test database code on Android. Unlike pure unit tests that run on the JVM, database tests require an Android Context and must run on a device or emulator. The foreign key enforcement tests were particularly interesting because <code>db.insert()</code> in Android's ContentValues API returns -1 on constraint violations rather than throwing an exception.</p>
+      <p>The CSV export feature reinforced the importance of understanding Android's evolving storage model. The transition from direct file system access to scoped storage in Android 10 means apps must use MediaStore for writing to shared directories. I implemented both paths to ensure compatibility across the app's supported API range (21&ndash;35).</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Jonathan Plummer &mdash; CS 499 Computer Science Capstone &mdash; SNHU 2025</p>
+    <p><a href="https://github.com/Jonplummer54/CS499" target="_blank">View Repository on GitHub</a></p>
+  </footer>
+
+</body>
+</html>

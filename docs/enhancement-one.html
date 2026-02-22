@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhancement One: Software Design - Jonathan Plummer ePortfolio</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Jonathan Plummer</a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="code-review.html">Code Review</a>
+        <a href="enhancement-one.html" class="active">Software Design</a>
+        <a href="enhancement-two.html">Algorithms</a>
+        <a href="enhancement-three.html">Databases</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Software Design &amp; Engineering</h1>
+    <p class="subtitle">Enhancement One &mdash; Milestone Two</p>
+  </div>
+
+  <main>
+
+    <!-- NARRATIVE -->
+    <section>
+      <h2>Artifact Description</h2>
+      <p>The artifact is the Weight Tracking App, an Android mobile application built using Java and SQLite, originally developed in CS 360 Mobile Architecture and Programming. The original version provided basic functionality: user registration and login, the ability to add and delete daily weight entries displayed in a RecyclerView, and an SMS permission request feature. While functional, the code had significant design weaknesses including tightly coupled components, a mutable data model, duplicated logic across activities, minimal input validation, inconsistent resource management, and limited documentation.</p>
+    </section>
+
+    <section>
+      <h2>Justification for Inclusion</h2>
+      <p>I selected this artifact because the contrast between the original and enhanced versions clearly demonstrates growth in software design principles and engineering best practices. The following improvements showcase specific skills:</p>
+
+      <h3>Immutable Data Model</h3>
+      <p>The original <code>WeightEntry</code> class used mutable fields that could be modified after construction. I redesigned it to use <code>final</code> fields, ensuring that once a weight entry is created, its data cannot be accidentally changed. This follows the principle of defensive programming and makes the data model safer to share across components.</p>
+      <pre><code>public class WeightEntry {
+    private final int id;
+    private final String date;
+    private final String weight;
+
+    public WeightEntry(int id, String date, String weight) {
+        this.id = id;
+        this.date = date;
+        this.weight = weight;
+    }
+}</code></pre>
+
+      <h3>Callback Interfaces for Loose Coupling</h3>
+      <p>The original adapter handled delete operations by directly referencing the parent activity. I refactored it to use two callback interfaces &mdash; <code>OnDeleteClickListener</code> and <code>OnEditClickListener</code> &mdash; which the activity implements. This decouples the adapter from the activity's business logic, making it reusable and independently testable.</p>
+      <pre><code>public interface OnDeleteClickListener {
+    void onDeleteClick(int position);
+}
+
+public interface OnEditClickListener {
+    void onEditClick(int position);
+}
+
+// Activity passes callbacks to the adapter constructor
+adapter = new WeightLogAdapter(weightList, this::deleteWeight, this::showEditWeightDialog);</code></pre>
+
+      <h3>Centralized Permission Handling</h3>
+      <p>The original app had SMS permission logic duplicated across multiple activities. I extracted this into <code>SmsPermissionHelper</code>, a shared utility class with static methods. This follows the Single Responsibility Principle and the DRY principle.</p>
+
+      <h3>CSV Data Export</h3>
+      <p>I designed a <code>CsvExporter</code> utility class that handles Android's evolving storage model: MediaStore for API 29+ and legacy file I/O for older devices. The data retrieval and platform-specific storage logic are cleanly separated.</p>
+
+      <h3>Comprehensive Input Validation</h3>
+      <p>I added systematic validation throughout: weight values must be valid doubles within 1.0&ndash;1500.0 lbs, dates are validated with strict parsing, and empty field checks are applied consistently. Validation is applied at both the UI layer and the data access layer, implementing defense in depth.</p>
+
+      <h3>Resource Management</h3>
+      <p>I refactored all Cursor usage to use Java's try-with-resources pattern, guaranteeing cursors are closed regardless of whether operations succeed or throw exceptions.</p>
+      <pre><code>// Before: manual cursor management (error-prone)
+Cursor cursor = dbHelper.getAllWeights(username);
+// ... if exception here, cursor leaks
+cursor.close();
+
+// After: try-with-resources (guaranteed cleanup)
+try (Cursor cursor = dbHelper.getAllWeights(username)) {
+    // cursor automatically closed when block exits
+}</code></pre>
+
+      <h3>Documentation</h3>
+      <p>I added Javadoc comments to every class and public method, documenting purpose, parameters, return values, and design rationale.</p>
+    </section>
+
+    <section>
+      <h2>Course Outcomes</h2>
+      <p><span class="outcome-tag">Outcome 1</span><span class="outcome-tag">Outcome 4</span><span class="outcome-tag">Outcome 5</span></p>
+      <ul>
+        <li><strong>Outcome 1 (Collaborative Environments):</strong> Comprehensive documentation and modular design make the codebase accessible to other developers.</li>
+        <li><strong>Outcome 4 (Well-Founded Techniques):</strong> Immutability, callback interfaces, DRY principle, try-with-resources, and platform-aware CSV export are industry-standard practices.</li>
+        <li><strong>Outcome 5 (Security Mindset):</strong> Defense-in-depth input validation, defensive immutable model, and proper resource management reduce attack surface and prevent leaks.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Reflection</h2>
+      <p>The most significant lesson I learned was the importance of separating concerns before adding new features. When I first looked at the original code with the goal of adding CSV export, I realized the existing codebase was too tightly coupled to extend cleanly. I had to refactor the existing architecture before I could add new features without introducing more technical debt.</p>
+      <p>The CSV export feature taught me practical lessons about Android's storage evolution. Implementing both the MediaStore path and the legacy file I/O path, selecting the correct one at runtime, was a good exercise in writing backward-compatible code that still takes advantage of modern APIs.</p>
+      <p>The input validation enhancement reinforced the principle of defense in depth. I initially considered validating only at the UI layer, but realized that database methods could theoretically be called from other code paths in the future. Adding validation in <code>DatabaseHelper.addWeight()</code> and <code>DatabaseHelper.updateWeight()</code> provides a safety net regardless of how the methods are invoked.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Jonathan Plummer &mdash; CS 499 Computer Science Capstone &mdash; SNHU 2025</p>
+    <p><a href="https://github.com/Jonplummer54/CS499" target="_blank">View Repository on GitHub</a></p>
+  </footer>
+
+</body>
+</html>

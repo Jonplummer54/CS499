@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Review - Jonathan Plummer ePortfolio</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Jonathan Plummer</a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="code-review.html" class="active">Code Review</a>
+        <a href="enhancement-one.html">Software Design</a>
+        <a href="enhancement-two.html">Algorithms</a>
+        <a href="enhancement-three.html">Databases</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Code Review</h1>
+    <p class="subtitle">Milestone One &mdash; Informal Code Review Video</p>
+  </div>
+
+  <main>
+
+    <section>
+      <h2>Code Review Video</h2>
+      <p>The following video presents a detailed walkthrough of the original Weight Tracking App artifact before enhancements. It covers the existing functionality, a code analysis identifying areas for improvement, and a planned enhancement strategy across all three categories: software design and engineering, algorithms and data structures, and databases.</p>
+
+      <!-- REPLACE THE LINK BELOW WITH YOUR ACTUAL VIDEO URL -->
+      <a href="https://drive.google.com/YOUR_VIDEO_LINK_HERE" target="_blank" class="video-link">
+        &#9654; Watch Code Review Video
+      </a>
+
+      <p style="color: var(--color-text-light); font-size: 0.9rem; margin-top: 0.5rem;">
+        <em>Video hosted on Google Drive. Click the link above to view.</em>
+      </p>
+    </section>
+
+    <section>
+      <h2>Existing Functionality</h2>
+      <p>The original Weight Tracking App was developed in CS 360 Mobile Architecture and Programming. It was a native Android application built with Java and SQLite that provided the following basic features:</p>
+      <ul>
+        <li><strong>User Authentication:</strong> Registration and login with plaintext password storage</li>
+        <li><strong>Weight Logging:</strong> Add and delete daily weight entries displayed in a RecyclerView</li>
+        <li><strong>SMS Permissions:</strong> A dedicated activity for requesting SEND_SMS permission</li>
+        <li><strong>Database:</strong> Two tables (users and weight_log) with no constraints or indexes</li>
+      </ul>
+      <p>The app was functional but lacked analytics, search capability, input validation, security, testing, and documentation.</p>
+    </section>
+
+    <section>
+      <h2>Code Analysis</h2>
+      <p>The code review identified the following areas for improvement:</p>
+
+      <h3>Structure &amp; Design</h3>
+      <p>The RecyclerView adapter was tightly coupled to the activity. The data model used mutable fields. Permission logic was duplicated across activities rather than centralized.</p>
+
+      <h3>Functionality</h3>
+      <p>No analytical features existed. Users could only log and view weights with no insight into trends, progress, or projections. There was no way to search for entries or export data.</p>
+
+      <h3>Efficiency</h3>
+      <p>No search functionality beyond scrolling. No database indexes, resulting in full table scans for every query.</p>
+
+      <h3>Security</h3>
+      <p>Passwords stored in plaintext. No input validation on weight values or dates. No database constraints beyond basic column types.</p>
+
+      <h3>Testing &amp; Documentation</h3>
+      <p>No unit tests or instrumented tests existed. Minimal code comments with no Javadoc documentation.</p>
+    </section>
+
+    <section>
+      <h2>Enhancement Plan</h2>
+      <p>The code review outlined enhancements across three categories, mapped to the five course outcomes:</p>
+
+      <h3>Enhancement 1: Software Design &amp; Engineering</h3>
+      <ul>
+        <li>Refactor to immutable data model</li>
+        <li>Introduce callback interfaces for loose coupling</li>
+        <li>Centralize permission handling</li>
+        <li>Add CSV data export with dual storage path support</li>
+        <li>Implement comprehensive input validation</li>
+        <li>Add try-with-resources for resource management</li>
+        <li>Write Javadoc documentation throughout</li>
+      </ul>
+      <p><span class="outcome-tag">Outcome 1</span><span class="outcome-tag">Outcome 2</span><span class="outcome-tag">Outcome 4</span><span class="outcome-tag">Outcome 5</span></p>
+
+      <h3>Enhancement 2: Algorithms &amp; Data Structures</h3>
+      <ul>
+        <li>Implement linear regression for trend analysis</li>
+        <li>Implement moving average with LinkedList sliding window</li>
+        <li>Add binary search for date lookups</li>
+        <li>Build HashMap date index for O(1) existence checks</li>
+        <li>Use TreeMap for sorted date-weight mappings</li>
+        <li>Add goal projection and progress calculation</li>
+        <li>Write comprehensive unit tests</li>
+      </ul>
+      <p><span class="outcome-tag">Outcome 2</span><span class="outcome-tag">Outcome 3</span><span class="outcome-tag">Outcome 4</span></p>
+
+      <h3>Enhancement 3: Databases</h3>
+      <ul>
+        <li>Add foreign key constraints with cascading deletes</li>
+        <li>Create composite indexes for query optimization</li>
+        <li>Implement non-destructive schema migration</li>
+        <li>Add strict date validation at the data layer</li>
+        <li>Write instrumented database tests</li>
+      </ul>
+      <p><span class="outcome-tag">Outcome 4</span><span class="outcome-tag">Outcome 5</span></p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Jonathan Plummer &mdash; CS 499 Computer Science Capstone &mdash; SNHU 2025</p>
+    <p><a href="https://github.com/Jonplummer54/CS499" target="_blank">View Repository on GitHub</a></p>
+  </footer>
+
+</body>
+</html>

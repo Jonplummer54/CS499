@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhancement Two: Algorithms - Jonathan Plummer ePortfolio</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Jonathan Plummer</a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="code-review.html">Code Review</a>
+        <a href="enhancement-one.html">Software Design</a>
+        <a href="enhancement-two.html" class="active">Algorithms</a>
+        <a href="enhancement-three.html">Databases</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Algorithms &amp; Data Structures</h1>
+    <p class="subtitle">Enhancement Two &mdash; Milestone Three</p>
+  </div>
+
+  <main>
+
+    <section>
+      <h2>Artifact Description</h2>
+      <p>The original Weight Tracking App allowed users to log daily weight entries and view them in a list, but it had no analytical capabilities and no way to search through entries efficiently. Users could only scroll through a chronological list with no insight into trends, progress toward goals, or projected outcomes.</p>
+    </section>
+
+    <section>
+      <h2>Justification for Inclusion</h2>
+      <p>The enhancements demonstrate the practical application of multiple algorithms and data structures to solve real user problems. Each algorithm was chosen to address a specific functional gap, and the trade-offs involved in each choice are documented.</p>
+
+      <h3>Linear Regression (Least Squares)</h3>
+      <p>Computes the trend line through weight data using day indices as the independent variable. The slope represents average daily weight change, used for trend direction and goal projection. Achieves <strong>O(n) time</strong> and <strong>O(1) space</strong> using accumulator variables.</p>
+      <pre><code>// Least squares formula
+double denominator = n * sumX2 - sumX * sumX;
+double slope = (n * sumXY - sumX * sumY) / denominator;
+double intercept = (sumY - slope * sumX) / n;</code></pre>
+      <p><em>Trade-off:</em> Chose linear regression over polynomial regression for simplicity and resistance to overfitting on short-term data.</p>
+
+      <h3>Moving Average with LinkedList Sliding Window</h3>
+      <p>Smooths daily weight fluctuations using a configurable window (default 7 days). Uses a <code>LinkedList</code> as a sliding window queue with a running sum for <strong>O(n) time</strong> and <strong>O(windowSize) space</strong>.</p>
+      <pre><code>LinkedList&lt;Double&gt; window = new LinkedList&lt;&gt;();
+double windowSum = 0.0;
+
+for (int i = 0; i &lt; entries.size(); i++) {
+    double weight = Double.parseDouble(entries.get(i).getWeight());
+
+    window.addLast(weight);      // O(1) add to tail
+    windowSum += weight;
+
+    if (window.size() &gt; effectiveWindow) {
+        windowSum -= window.removeFirst();  // O(1) remove from head
+    }
+
+    if (window.size() == effectiveWindow) {
+        averages.add(windowSum / effectiveWindow);
+    }
+}</code></pre>
+      <p><em>Trade-off:</em> Chose LinkedList over ArrayList because removing the first element of an ArrayList requires O(n) shifts, while LinkedList provides O(1) head removal.</p>
+
+      <h3>Binary Search for Date Lookup</h3>
+      <p>Finds weight entries by date in <strong>O(log n) time</strong>. The YYYY-MM-DD format preserves chronological order under lexicographic comparison, enabling direct string comparison without date parsing.</p>
+      <pre><code>int mid = low + (high - low) / 2;  // Avoids integer overflow
+String midDate = sortedList.get(mid).getDate();
+int comparison = midDate.compareTo(targetDate);</code></pre>
+      <p><em>Design decision:</em> The database returns entries in DESC order for display. Rather than a second query, I reverse the list for search and convert indexes back with <code>ascIndexToDescIndex()</code>.</p>
+
+      <h3>HashMap Index for O(1) Existence Checks</h3>
+      <p>A <code>HashMap&lt;String, WeightEntry&gt;</code> maps each date to its entry for instant lookups. In the search workflow, the HashMap is checked first &mdash; if the date doesn't exist, the binary search is skipped entirely.</p>
+      <p><em>Trade-off:</em> HashMap for existence checking + binary search for positional lookup. Each data structure is used for what it does best.</p>
+
+      <h3>TreeMap for Sorted Mappings</h3>
+      <p>A <code>TreeMap&lt;String, Double&gt;</code> organizes weight entries into a sorted map. Since YYYY-MM-DD strings sort chronologically, the TreeMap provides efficient ordered traversal and range queries.</p>
+      <p><em>Trade-off:</em> Chose TreeMap over sorted ArrayList for its richer API supporting <code>firstKey()</code>, <code>lastKey()</code>, and <code>subMap()</code> for potential future features.</p>
+
+      <h3>Goal Projection &amp; Progress</h3>
+      <p>The goal projection uses the regression slope to extrapolate when the user will reach their target weight, handling edge cases: flat trends, trends moving away from the goal, and projections exceeding 10 years. Progress calculation uses <code>(actualChange / totalChange) * 100</code>, clamped to 0&ndash;100%.</p>
+
+      <h3>Unit Tests (28 Tests)</h3>
+      <p>Comprehensive tests in <code>GoalTrackerTest</code> and <code>WeightSearchHelperTest</code> verify correctness of all algorithms including boundary conditions, edge cases, null inputs, empty lists, and single-element lists.</p>
+    </section>
+
+    <section>
+      <h2>Course Outcomes</h2>
+      <p><span class="outcome-tag">Outcome 2</span><span class="outcome-tag">Outcome 3</span><span class="outcome-tag">Outcome 4</span></p>
+      <ul>
+        <li><strong>Outcome 2 (Professional Communications):</strong> Javadoc with complexity annotations; algorithmic output translated to user-friendly UI displays.</li>
+        <li><strong>Outcome 3 (Algorithmic Principles &amp; Trade-offs):</strong> Each algorithm selected with documented trade-off reasoning. Time and space complexity analyzed for all implementations.</li>
+        <li><strong>Outcome 4 (Well-Founded Techniques):</strong> Algorithms deliver direct user value: moving average smooths fluctuations, regression reveals trends, projection gives a target date. Correctness validated through 28 unit tests.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Reflection</h2>
+      <p>The most challenging aspect was designing the search workflow to work with the existing data flow. The database returns entries in descending order for display, but binary search requires ascending order. I evaluated three approaches: a second database query with ASC ordering, sorting the list in-place, or creating a reversed copy. I chose the reversed copy because it avoids an extra database call, does not modify the display list, and the reversal is an O(n) operation that only runs when the user initiates a search.</p>
+      <p>Implementing linear regression taught me the importance of handling degenerate cases. My initial implementation did not check for a zero denominator or unparseable weight values. Adding robust error handling made the algorithm resilient against real-world data quality issues.</p>
+      <p>The moving average initially used an ArrayList with full window recalculation, resulting in O(n * windowSize) time. Switching to a LinkedList with a running sum reduced this to O(n) &mdash; an optimization that matters for users with months or years of daily entries.</p>
+      <p>Writing the unit tests was particularly valuable for the goal projection algorithm, which has many branches. Each branch required carefully constructed test data. The tests also caught a subtle issue where negative progress was not being clamped to zero.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Jonathan Plummer &mdash; CS 499 Computer Science Capstone &mdash; SNHU 2025</p>
+    <p><a href="https://github.com/Jonplummer54/CS499" target="_blank">View Repository on GitHub</a></p>
+  </footer>
+
+</body>
+</html>

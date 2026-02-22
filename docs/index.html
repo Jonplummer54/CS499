@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jonathan Plummer - CS 499 ePortfolio</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Jonathan Plummer</a>
+      <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+      <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="code-review.html">Code Review</a>
+        <a href="enhancement-one.html">Software Design</a>
+        <a href="enhancement-two.html">Algorithms</a>
+        <a href="enhancement-three.html">Databases</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>CS 499 Computer Science Capstone</h1>
+    <p class="subtitle">ePortfolio &mdash; Southern New Hampshire University</p>
+  </div>
+
+  <main>
+
+    <!-- ==================== PROFESSIONAL SELF-ASSESSMENT ==================== -->
+    <section>
+      <h2>Professional Self-Assessment</h2>
+
+      <p>Completing the Computer Science program at SNHU and developing this ePortfolio have given me the opportunity to consolidate the technical knowledge and practical skills I have built throughout the program and connect them to the professional experience I bring from my current role as a data visualization specialist. Working alongside data scientists daily has given me a firsthand perspective on how software engineering, data structures, algorithmic thinking, and database design come together to deliver analytical tools that inform real decisions. The coursework in this program provided the formal computer science foundation to complement that experience, and this capstone project gave me the space to demonstrate that growth through a single artifact enhanced across three categories of the discipline.</p>
+
+      <h3>Collaborating in a Team Environment</h3>
+      <p>Throughout the program, I developed a strong understanding of how collaborative software development works in practice. In CS 250 Software Development Lifecycle, I learned the Agile and Scrum frameworks that structure how development teams plan, execute, and deliver software iteratively. These concepts were not abstract to me because in my professional role, I work within cross-functional teams where data scientists, analysts, and engineers collaborate on shared deliverables. Understanding how to break work into sprints, participate in standups, and incorporate stakeholder feedback are skills I apply daily.</p>
+      <p>In this capstone, I demonstrated collaboration readiness through the code review process. Producing a code review video required me to explain my existing code to a non-technical audience, identify weaknesses honestly, and articulate a clear plan for improvement. I also wrote comprehensive Javadoc documentation throughout my artifact so that any developer joining the project could understand the codebase without requiring a walkthrough from me.</p>
+
+      <h3>Communicating with Stakeholders</h3>
+      <p>Effective communication is something I practice professionally every day. As a data visualization specialist, my primary responsibility is translating complex data into visual formats that stakeholders can understand and act on. This skill translated directly into the capstone in several ways. The narratives I wrote for each enhancement required me to explain technical decisions in clear, structured prose. The code review video required me to present technical material orally, adapting my explanation to an audience of peers rather than deeply technical specialists.</p>
+      <p>Within the artifact itself, the GoalTrackerActivity demonstrates communication through design. The linear regression algorithm produces a slope value measured in pounds per day, but displaying a raw slope to the user would be meaningless. Instead, the activity translates algorithmic output into user-friendly language: trend direction is displayed as "Losing weight," "Gaining weight," or "Stable," and the goal projection is displayed as a calendar date rather than a number of days.</p>
+
+      <h3>Data Structures and Algorithms</h3>
+      <p>CS 260 Data Structures and Algorithms was one of the most foundational courses in the program for me. It gave me the vocabulary and analytical framework to evaluate algorithmic choices systematically rather than relying on intuition. In this capstone, I applied those skills by implementing five distinct algorithms and data structures: linear regression for trend analysis, a simple moving average with a LinkedList sliding window for data smoothing, binary search for efficient date lookup, a HashMap index for constant-time existence checks, and a TreeMap for sorted date-weight mappings. Each choice involved explicit trade-offs that I documented in the code.</p>
+
+      <h3>Software Engineering and Databases</h3>
+      <p>CS 340 Advanced Programming Concepts and DAD 220 Introduction to SQL taught me how to design software systems that are maintainable, extensible, and data-driven. In this capstone, I applied software engineering principles by refactoring the original artifact from a tightly coupled prototype into a modular, maintainable application. On the database side, I enhanced the SQLite schema with foreign key constraints and cascading deletes, created composite indexes, implemented a non-destructive migration strategy, and added strict date validation at the database layer.</p>
+
+      <h3>Security</h3>
+      <p>Developing a security mindset was a recurring theme throughout the program. The capstone artifact demonstrates security practices at multiple layers. User passwords are hashed using SHA-256 with a unique cryptographically random salt per user. Input validation is applied defensively at both the UI layer and the data access layer, implementing defense in depth. The database enforces NOT NULL constraints and foreign key constraints to maintain data integrity. Weight values are range-checked and dates are validated using strict parsing to reject impossible calendar dates.</p>
+    </section>
+
+    <!-- ==================== PORTFOLIO SUMMARY ==================== -->
+    <section>
+      <h2>Portfolio Summary</h2>
+      <p>The artifact in this ePortfolio is the <strong>Weight Tracking App</strong>, an Android mobile application originally developed in CS 360 Mobile Architecture and Programming. I chose to enhance a single artifact across all three categories &mdash; software design and engineering, algorithms and data structures, and databases &mdash; because doing so demonstrates the depth of improvement possible when computer science principles are applied systematically to an existing codebase.</p>
+      <p>Together, the three enhancements demonstrate that I can take a working piece of software and elevate it to professional standards by applying the principles learned throughout the Computer Science program. Explore each enhancement below.</p>
+
+      <div class="card-grid">
+        <a href="code-review.html" class="card">
+          <div class="card-label">Milestone 1</div>
+          <h3>Code Review</h3>
+          <p>Video walkthrough analyzing the original artifact and planning all three enhancements.</p>
+        </a>
+        <a href="enhancement-one.html" class="card">
+          <div class="card-label">Enhancement 1</div>
+          <h3>Software Design &amp; Engineering</h3>
+          <p>Immutable models, callback interfaces, CSV export, input validation, and documentation.</p>
+        </a>
+        <a href="enhancement-two.html" class="card">
+          <div class="card-label">Enhancement 2</div>
+          <h3>Algorithms &amp; Data Structures</h3>
+          <p>Linear regression, moving average, binary search, HashMap and TreeMap implementations.</p>
+        </a>
+        <a href="enhancement-three.html" class="card">
+          <div class="card-label">Enhancement 3</div>
+          <h3>Databases</h3>
+          <p>Foreign keys, composite indexes, non-destructive migration, and date validation.</p>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Jonathan Plummer &mdash; CS 499 Computer Science Capstone &mdash; SNHU 2025</p>
+    <p><a href="https://github.com/Jonplummer54/CS499" target="_blank">View Repository on GitHub</a></p>
+  </footer>
+
+</body>
+</html>
